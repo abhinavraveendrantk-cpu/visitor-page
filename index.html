@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Enter your name to continue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0f1724;
+    --card: #0b1220;
+    --muted: #94a3b8;
+    --accent: #ff6b6b;
+    --white: #ffffff;
+    --glass: rgba(255,255,255,0.04);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    background: linear-gradient(180deg, #071029 0%, #071a2b 60%), radial-gradient(600px 400px at 10% 10%, rgba(255,107,107,0.06), transparent 10%);
+    color:var(--white);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .card{
+    width:100%;
+    max-width:420px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:14px;
+    padding:28px;
+    box-shadow: 0 12px 40px rgba(2,6,23,0.6);
+    border: 1px solid rgba(255,255,255,0.04);
+    backdrop-filter: blur(6px);
+  }
+  .brand {display:flex;gap:12px;align-items:center;margin-bottom:14px;}
+  .logo {
+    width:54px;height:54px;border-radius:12px;
+    background: linear-gradient(135deg,#ff6b6b,#ffb86b);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;color:#081225;font-size:20px;
+    box-shadow:0 6px 18px rgba(255,107,107,0.12);
+  }
+  .brand h1{margin:0;font-size:18px;letter-spacing:0.2px;}
+  .brand p{margin:0;font-size:13px;color:var(--muted)}
+  h2{margin:8px 0 4px 0;font-size:20px}
+  p.lead{margin:0 0 18px 0;color:var(--muted);font-size:14px}
+  form{display:flex;flex-direction:column;gap:12px;}
+  .input{
+    display:flex;gap:10px;align-items:center;
+    background:var(--glass);
+    border-radius:10px;padding:10px 12px;
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  input[type="text"]{
+    flex:1;outline:none;border:0;font-size:16px;color:var(--white);background:transparent;
+  }
+  input::placeholder{color:rgba(255,255,255,0.45)}
+  .btn{
+    margin-top:6px;padding:12px 16px;border-radius:10px;border:0;
+    font-weight:600;font-size:15px;cursor:pointer;
+    background:linear-gradient(90deg,#ff6b6b,#ffb86b);
+    color:#081225;transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:0 8px 20px rgba(255,107,107,0.12);
+  }
+  .btn:active{transform:translateY(1px)}
+  .small{text-align:center;font-size:13px;color:var(--muted);margin-top:12px}
+  .footer{margin-top:16px;display:flex;justify-content:center;gap:10px;align-items:center}
+  .privacy{font-size:12px;color:var(--muted)}
+  .overlay{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(2,6,23,0.5);z-index:60;opacity:0;pointer-events:none;
+    transition:opacity .18s ease;
+  }
+  .overlay.show{opacity:1;pointer-events:auto}
+  .toast{
+    background:#071122;padding:18px 20px;border-radius:10px;
+    border:1px solid rgba(255,255,255,0.04);
+    color:var(--white);min-width:240px;text-align:center;
+    box-shadow:0 10px 30px rgba(2,6,23,0.6);
+  }
+
+  /* small helper for manual testing link */
+  .test-note{margin-top:12px;font-size:13px;color:var(--muted);text-align:center}
+  .test-note a{color:var(--white);text-decoration:underline}
+</style>
+</head>
+
+<body>
+<div class="card">
+  <div class="brand">
+    <div class="logo">A</div>
+    <div>
+      <h1>Enter your name to continue</h1>
+      <p>Proceed to my Instagram</p>
+    </div>
+  </div>
+
+  <h2>Quick — tell me your name</h2>
+  <p class="lead">We’ll take you to my Instagram right after. This helps me greet new followers personally.</p>
+
+  <form id="captureForm" onsubmit="return handleSubmit(event)" autocomplete="off" novalidate>
+    <div class="input">
+      <input id="name" name="name" type="text" placeholder="Your name..." aria-required="true" />
+    </div>
+
+    <!-- Google Form action & field filled from your prefilled link -->
+    <input type="hidden" id="FORM_ACTION" value="https://docs.google.com/forms/d/e/1FAIpQLSdgxBJwq1BgTNXl2qYF3W-Am854DpPhoMwi6gQ6F6uobOYDKA/formResponse" />
+    <input type="hidden" id="FORM_FIELD_NAME" value="entry.1248517969" />
+
+    <button class="btn" type="submit">Next</button>
+  </form>
+
+  <div class="small">
+    By continuing you agree to share your name. We respect privacy — no spamming.
+  </div>
+
+  <div class="footer">
+    <div class="privacy">Private • Secure • Fast</div>
+  </div>
+  <div class="test-note">If anything breaks, you can also <a href="#" id="openForm" target="_blank">open the form directly</a> to test submission.</div>
+</div>
+
+<div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="toast">Thanks <span id="visitorName"></span> — redirecting...</div>
+</div>
+
+<script>
+  const REDIRECT_URL = "https://www.instagram.com/abhin_av._/";
+  const FORM_ACTION = document.getElementById('FORM_ACTION').value;
+  const FORM_FIELD = document.getElementById('FORM_FIELD_NAME').value;
+  document.getElementById('openForm').href = FORM_ACTION.replace('/formResponse','/viewform');
+
+  function showOverlay(name){
+    document.getElementById('visitorName').textContent = name;
+    const overlay = document.getElementById('overlay');
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden','false');
+  }
+
+  async function handleSubmit(e){
+    e.preventDefault();
+    const nameInput = document.getElementById('name');
+    const name = nameInput.value.trim();
+
+    if(!name){
+      nameInput.focus();
+      alert('Please enter your name to continue.');
+      return false;
+    }
+
+    // save locally as backup
+    try {
+      const saved = JSON.parse(localStorage.getItem('visitors') || '[]');
+      saved.push({name, ts: new Date().toISOString(), ua: navigator.userAgent});
+      localStorage.setItem('visitors', JSON.stringify(saved));
+    } catch(err){ /* ignore */ }
+
+    // Submit to Google Form (no-cors)
+    try {
+      const body = new URLSearchParams();
+      body.append(FORM_FIELD, name);
+      body.append('timestamp', new Date().toISOString());
+      await fetch(FORM_ACTION, { method: 'POST', body: body, mode: 'no-cors' });
+    } catch(err){
+      console.warn('Form submit failed', err);
+    }
+
+    // show overlay then redirect
+    showOverlay(name);
+    setTimeout(()=> {
+      window.location.href = REDIRECT_URL;
+    }, 1200);
+
+    return false;
+  }
+
+  // focus input on load
+  window.addEventListener('load', ()=> {
+    const i = document.getElementById('name');
+    if(i) i.focus();
+  });
+</script>
+
+</body>
+</html>
